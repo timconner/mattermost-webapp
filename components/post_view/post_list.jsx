@@ -650,6 +650,7 @@ export default class PostList extends React.PureComponent {
                         id='posts_view.loadingMore'
                         defaultMessage='Loading more messages...'
                     />
+<<<<<<< HEAD
                     <button
                         ref='loadmoretop'
                         className='more-messages-text theme style--none color--link'
@@ -657,6 +658,8 @@ export default class PostList extends React.PureComponent {
                     >
                         (Click if stalled)
                     </button>
+=======
+>>>>>>> Add infinite scroll
                 </div>
             );
         }
