@@ -785,6 +785,7 @@ export const Constants = {
             mentionBg: '#ffffff',
             mentionColor: '#145dbf',
             centerChannelBg: '#ffffff',
+			selfHighlightBg: '#ffffff',
             centerChannelColor: '#3d3c40',
             newMessageSeparator: '#ff8800',
             linkColor: '#2389d7',
@@ -812,6 +813,7 @@ export const Constants = {
             mentionBg: '#fbfbfb',
             mentionColor: '#2071f7',
             centerChannelBg: '#f2f4f8',
+			selfHighlightBg: '#f2f4f8',
             centerChannelColor: '#333333',
             newMessageSeparator: '#ff8800',
             linkColor: '#2f81b7',
@@ -839,6 +841,7 @@ export const Constants = {
             mentionBg: '#b74a4a',
             mentionColor: '#ffffff',
             centerChannelBg: '#2f3e4e',
+			selfHighlightBg: '#2f3e4e',
             centerChannelColor: '#dddddd',
             newMessageSeparator: '#5de5da',
             linkColor: '#a4ffeb',
@@ -866,6 +869,7 @@ export const Constants = {
             mentionBg: '#0177e7',
             mentionColor: '#ffffff',
             centerChannelBg: '#1f1f1f',
+			selfHighlightBg: '#1f1f1f',
             centerChannelColor: '#dddddd',
             newMessageSeparator: '#cc992d',
             linkColor: '#0d93ff',
@@ -948,6 +952,11 @@ export const Constants = {
             group: 'centerChannelElements',
             id: 'centerChannelBg',
             uiName: 'Center Channel BG',
+        },
+		{
+            group: 'centerChannelElements',
+            id: 'selfHighlightBg',
+            uiName: 'Self Highlight BG'
         },
         {
             group: 'centerChannelElements',
