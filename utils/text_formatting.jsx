@@ -39,7 +39,7 @@ export function formatText(text, inputOptions) {
 
     let output = text;
 
-	var emojiiOnly = new RegExp('^( *:[\\w-]*:* *)*$');
+	var emojiiOnly = new RegExp('^( *:[\\w-]+:* *)*$');
 	if (emojiiOnly.test(output)) {
 		output = "# " + output;
 	}
