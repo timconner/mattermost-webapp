@@ -39,11 +39,11 @@ export function formatText(text, inputOptions) {
 
     let output = text;
 
-	var emojiiOnly = new RegExp('^( *:[\\w-]+:* *)*$');
-	if (emojiiOnly.test(output)) {
-		output = "# " + output;
-	}
-	
+    var emojiiOnly = new RegExp('^( *:[\\w-]+:* *)*$');
+    if (emojiiOnly.test(output)) {
+        output = '# ' + output;
+    }
+
     const options = Object.assign({}, inputOptions);
     options.searchPatterns = parseSearchTerms(options.searchTerm).map(convertSearchTermToRegex);
 
