@@ -97,8 +97,8 @@ export default class PostList extends React.PureComponent {
             /**
              * Function to check and set if app is in mobile view
              */
-            checkAndSetMobileView: PropTypes.func.isRequired
-        }).isRequired
+            checkAndSetMobileView: PropTypes.func.isRequired,
+        }).isRequired,
     }
 
     constructor(props) {
@@ -116,7 +116,7 @@ export default class PostList extends React.PureComponent {
             unViewedCount: 0,
             isDoingInitialLoad: true,
             isScrolling: false,
-            lastViewed: props.lastViewedAt
+            lastViewed: props.lastViewedAt,
         };
     }
 
@@ -125,14 +125,14 @@ export default class PostList extends React.PureComponent {
         this.props.actions.checkAndSetMobileView();
         GlobalEventEmitter.addListener(EventTypes.POST_LIST_SCROLL_CHANGE, this.handleResize);
 
-        window.addEventListener('resize', this.handleResize);
+        window.addEventListener('resize', this.handleWindowResize);
 
         this.initialScroll();
     }
 
     componentWillUnmount() {
         GlobalEventEmitter.removeListener(EventTypes.POST_LIST_SCROLL_CHANGE, this.handleResize);
-        window.removeEventListener('resize', this.handleResize);
+        window.removeEventListener('resize', this.handleWindowResize);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -194,8 +194,6 @@ export default class PostList extends React.PureComponent {
             return;
         }
 
-        this.initialScroll();
-
         // Scroll to focused post on first load
         const focusedPost = this.refs[this.props.focusedPostId];
         if (focusedPost && this.props.posts) {
@@ -207,6 +205,16 @@ export default class PostList extends React.PureComponent {
             } else if (this.previousScrollHeight !== postList.scrollHeight && posts[0].id === prevPosts[0].id) {
                 postList.scrollTop = this.previousScrollTop + (postList.scrollHeight - this.previousScrollHeight);
             }
+            return;
+        }
+
+        const didInitialScroll = this.initialScroll();
+
+        if (posts.length >= POSTS_PER_PAGE) {
+            this.hasScrolledToNewMessageSeparator = true;
+        }
+
+        if (didInitialScroll) {
             return;
         }
 
@@ -242,28 +250,35 @@ export default class PostList extends React.PureComponent {
         }
     }
 
-    // Scroll to new message indicator or bottom on first load
+    // Scroll to new message indicator or bottom on first load. Returns true
+    // if we just scrolled for the initial load.
     initialScroll = () => {
+        if (this.hasScrolledToNewMessageSeparator) {
+            // Already scrolled to new messages indicator
+            return false;
+        }
+
         const postList = this.refs.postlist;
         const posts = this.props.posts;
-        if (this.hasScrolledToNewMessageSeparator || !postList || !posts) {
-            return;
+        if (!postList || !posts) {
+            // Not able to do initial scroll yet
+            return false;
         }
 
         const messageSeparator = this.refs.newMessageSeparator;
         if (messageSeparator) {
+            // Scroll to new message indicator since we have unread posts
             messageSeparator.scrollIntoView();
             if (!this.checkBottom()) {
                 this.setUnreadsBelow(posts, this.props.currentUserId);
             }
-        } else {
-            postList.scrollTop = postList.scrollHeight;
-            this.atBottom = true;
+            return true;
         }
 
-        if (posts.length >= POSTS_PER_PAGE) {
-            this.hasScrolledToNewMessageSeparator = true;
-        }
+        // Scroll to bottom since we don't have unread posts
+        postList.scrollTop = postList.scrollHeight;
+        this.atBottom = true;
+        return true;
     }
 
     setUnreadsBelow = (posts, currentUserId) => {
@@ -280,7 +295,7 @@ export default class PostList extends React.PureComponent {
 
     handleScrollStop = () => {
         this.setState({
-            isScrolling: false
+            isScrolling: false,
         });
     }
 
@@ -295,6 +310,10 @@ export default class PostList extends React.PureComponent {
         }
 
         return this.refs.postlist.clientHeight + this.refs.postlist.scrollTop >= this.refs.postlist.scrollHeight - CLOSE_TO_BOTTOM_SCROLL_MARGIN;
+    }
+
+    handleWindowResize = () => {
+        this.handleResize();
     }
 
     handleResize = (forceScrollToBottom) => {
@@ -378,7 +397,7 @@ export default class PostList extends React.PureComponent {
 
         if (!this.state.isScrolling) {
             this.setState({
-                isScrolling: true
+                isScrolling: true,
             });
         }
 
@@ -386,7 +405,7 @@ export default class PostList extends React.PureComponent {
             this.setState({
                 lastViewed: new Date().getTime(),
                 unViewedCount: 0,
-                isScrolling: false
+                isScrolling: false,
             });
         }
 
@@ -418,7 +437,7 @@ export default class PostList extends React.PureComponent {
 
                     if (!this.state.topPost || topPost.id !== this.state.topPost.id) {
                         this.setState({
-                            topPost
+                            topPost,
                         });
                     }
 

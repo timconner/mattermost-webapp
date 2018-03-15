@@ -372,7 +372,7 @@ export function replaceHtmlEntities(text) {
     var tagsToReplace = {
         '&amp;': '&',
         '&lt;': '<',
-        '&gt;': '>'
+        '&gt;': '>',
     };
     var newtext = text;
     for (var tag in tagsToReplace) {
@@ -388,7 +388,7 @@ export function insertHtmlEntities(text) {
     var tagsToReplace = {
         '&': '&amp;',
         '<': '&lt;',
-        '>': '&gt;'
+        '>': '&gt;',
     };
     var newtext = text;
     for (var tag in tagsToReplace) {
@@ -616,15 +616,15 @@ export function applyTheme(theme) {
     const mentionBg = theme.mentionBg || theme.mentionBj;
     if (mentionBg) {
         changeCss('.sidebar--left .nav-pills__unread-indicator', 'background:' + mentionBg);
-        changeCss('.app__body .sidebar--left .badge', 'background:' + mentionBg);
-        changeCss('.multi-teams .team-sidebar .badge', 'background:' + mentionBg);
+        changeCss('.app__body .sidebar--left .badge, .app__body .list-group-item.active > .badge, .nav-pills > .active > a > .badge', 'background:' + mentionBg);
+        changeCss('.multi-teams .team-sidebar .badge, .app__body .list-group-item.active > .badge, .nav-pills > .active > a > .badge', 'background:' + mentionBg);
     }
 
     if (theme.mentionColor) {
         changeCss('.sidebar--left .nav-pills__unread-indicator svg', 'fill:' + theme.mentionColor);
         changeCss('.app__body .sidebar--left .nav-pills__unread-indicator', 'color:' + theme.mentionColor);
-        changeCss('.app__body .sidebar--left .badge', 'color:' + theme.mentionColor);
-        changeCss('.app__body .multi-teams .team-sidebar .badge', 'color:' + theme.mentionColor);
+        changeCss('.app__body .sidebar--left .badge, .app__body .list-group-item.active > .badge, .nav-pills > .active > a > .badge', 'color:' + theme.mentionColor);
+        changeCss('.app__body .multi-teams .team-sidebar .badge, .app__body .list-group-item.active > .badge, .nav-pills > .active > a > .badge', 'color:' + theme.mentionColor);
     }
 
     if (theme.centerChannelBg) {
@@ -633,7 +633,7 @@ export function applyTheme(theme) {
         changeCss('@media(max-width: 320px){.tutorial-steps__container', 'background:' + theme.centerChannelBg);
         changeCss('.app__body .channel-header__info .channel-header__description:before, .app__body .app__content, .app__body .markdown__table, .app__body .markdown__table tbody tr, .app__body .suggestion-list__content, .app__body .modal .modal-content, .app__body .modal .modal-footer, .app__body .post.post--compact .post-image__column, .app__body .suggestion-list__divider > span, .app__body .status-wrapper .status, .app__body .alert.alert-transparent, .app__body .post-image__column', 'background:' + theme.centerChannelBg);
         changeCss('#post-list .post-list-holder-by-time, .app__body .post .dropdown-menu a', 'background:' + theme.centerChannelBg);
-        changeCss('#post-create', 'background:' + theme.centerChannelBg);
+        changeCss('#post-create, .app__body .emoji-picker__preview', 'background:' + theme.centerChannelBg);
         changeCss('.app__body .date-separator .separator__text, .app__body .new-separator .separator__text', 'background:' + theme.centerChannelBg);
         changeCss('.app__body .post-image__details, .app__body .search-help-popover .search-autocomplete__divider span', 'background:' + theme.centerChannelBg);
         changeCss('.app__body .sidebar--right, .app__body .dropdown-menu, .app__body .popover, .app__body .tip-overlay', 'background:' + theme.centerChannelBg);
@@ -659,6 +659,7 @@ export function applyTheme(theme) {
         changeCss('.app__body .post-image__details .post-image__download svg', 'stroke:' + changeOpacity(theme.centerChannelColor, 0.4));
         changeCss('.app__body .post-image__details .post-image__download svg', 'border-color:' + changeOpacity(theme.centerChannelColor, 0.35));
         changeCss('.app__body .channel-header__icon svg', 'fill:' + changeOpacity(theme.centerChannelColor, 0.4));
+        changeCss('.app__body .channel-header__icon .icon--stroke svg', 'stroke:' + changeOpacity(theme.centerChannelColor, 0.4));
         changeCss('.app__body .modal .status .offline--icon, .app__body .channel-header__links .icon, .app__body .sidebar--right .sidebar--right__subheader .usage__icon, .app__body .more-modal__header svg, .app__body .icon--body', 'fill:' + theme.centerChannelColor);
         changeCss('@media(min-width: 768px){.app__body .post:hover .post__header .col__reply, .app__body .post.post--hovered .post__header .col__reply', 'border-color:' + changeOpacity(theme.centerChannelColor, 0.2));
         changeCss('.app__body .modal .shortcuts-modal .subsection, .app__body .sidebar--right .sidebar--right__header, .app__body .channel-header, .app__body .nav-tabs > li > a:hover, .app__body .nav-tabs, .app__body .nav-tabs > li.active > a, .app__body .nav-tabs, .app__body .nav-tabs > li.active > a:focus, .app__body .nav-tabs, .app__body .nav-tabs > li.active > a:hover, .app__body .post .dropdown-menu a, .sidebar--left, .app__body .suggestion-list__content .command', 'border-color:' + changeOpacity(theme.centerChannelColor, 0.2));
@@ -766,6 +767,7 @@ export function applyTheme(theme) {
         changeCss('.app__body .channel-header .channel-header__icon:hover #member_popover, .app__body .channel-header .channel-header__icon.active #member_popover', 'color:' + theme.linkColor);
         changeCss('.app__body .channel-header .pinned-posts-button:hover svg', 'fill:' + changeOpacity(theme.linkColor, 0.6));
         changeCss('.app__body .member-list__popover .more-modal__actions svg, .app__body .channel-header .channel-header__icon:hover svg, .app__body .channel-header .channel-header__icon.active svg', 'fill:' + theme.linkColor);
+        changeCss('.app__body .channel-header .channel-header__icon:hover .icon--stroke svg', 'stroke:' + theme.linkColor);
         changeCss('.app__body .post-reaction.post-reaction--current-user', 'background:' + changeOpacity(theme.linkColor, 0.1));
         changeCss('.app__body .post-add-reaction:hover .post-reaction, .app__body .post-reaction.post-reaction--current-user', 'border-color:' + changeOpacity(theme.linkColor, 0.4));
         changeCss('.app__body .member-list__popover .more-modal__list .more-modal__row:hover, .app__body .channel-header .channel-header__icon:hover, .app__body .channel-header .channel-header__icon.active, .app__body .search-bar__container .search__form.focused', 'border-color:' + theme.linkColor);
@@ -1388,7 +1390,7 @@ export function getPasswordConfig() {
         requireLowercase: global.window.mm_config.PasswordRequireLowercase === 'true',
         requireUppercase: global.window.mm_config.PasswordRequireUppercase === 'true',
         requireNumber: global.window.mm_config.PasswordRequireNumber === 'true',
-        requireSymbol: global.window.mm_config.PasswordRequireSymbol === 'true'
+        requireSymbol: global.window.mm_config.PasswordRequireSymbol === 'true',
     };
 }
 
@@ -1447,7 +1449,7 @@ export function isValidPassword(password, passwordConfig) {
                 default='Your password must contain between {min} and {max} characters.'
                 values={{
                     min: minimumLength,
-                    max: Constants.MAX_PASSWORD_LENGTH
+                    max: Constants.MAX_PASSWORD_LENGTH,
                 }}
             />
         );
@@ -1471,10 +1473,7 @@ export function handleFormattedTextClick(e) {
         if (!(e.button === MIDDLE_MOUSE_BUTTON || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey)) {
             e.preventDefault();
 
-            const urlparse = document.createElement('a');
-            urlparse.href = linkAttribute.value;
-
-            browserHistory.push(urlparse.pathname);
+            browserHistory.push(linkAttribute.value);
         }
     } else if (channelMentionAttribute) {
         e.preventDefault();
@@ -1514,7 +1513,7 @@ export function getEmailInterval(isEmailEnabled) {
         INTERVAL_FIFTEEN_MINUTES,
         INTERVAL_HOUR,
         CATEGORY_NOTIFICATIONS,
-        EMAIL_INTERVAL
+        EMAIL_INTERVAL,
     } = Constants.Preferences;
 
     if (!isEmailEnabled) {

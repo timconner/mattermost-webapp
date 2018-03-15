@@ -42,6 +42,17 @@
         right: 0;
         text-align: right;
         z-index: 3;
+
+        .modal & {
+            bottom: initial;
+            margin-top: -20px;
+            position: relative;
+            top: 30px;
+        }
+
+        a {
+            margin-left: 10px;
+        }
     }
 
     .textbox-preview-link {
@@ -54,9 +65,12 @@
     @include single-transition(all, .5s, ease, .5s);
     display: inline-block;
     font-size: .85em;
-    margin-right: 10px;
     vertical-align: bottom;
     white-space: nowrap;
+
+    .modal & {
+        white-space: normal;
+    }
 
     b,
     i,
@@ -979,19 +993,10 @@
         position: relative;
     }
 
-
-    &:not(.post--compact) {
-        .post--edited {
-            .post-message__text > p:last-child {
-                display: inline-block;
-                width: auto;
-            }
-        }
-    }
-
     .post--edited {
         .post-message__text > p:last-child {
-            display: inline;
+            display: inline-block;
+            width: auto;
         }
     }
 

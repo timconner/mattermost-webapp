@@ -15,7 +15,7 @@ import * as GlobalActions from 'actions/global_actions.jsx';
 
 export default class PermalinkView extends React.PureComponent {
     static propTypes = {
-        returnTo: PropTypes.string.isRequired
+        returnTo: PropTypes.string.isRequired,
     };
 
     constructor(props) {
@@ -25,15 +25,16 @@ export default class PermalinkView extends React.PureComponent {
         this.isStateValid = this.isStateValid.bind(this);
         this.updateState = this.updateState.bind(this);
         this.doPermalinkEvent = this.doPermalinkEvent.bind(this);
+        this.state = {valid: false};
 
         this.doPermalinkEvent(props);
-
-        this.state = this.getStateFromStores(props);
     }
 
-    doPermalinkEvent(props) {
+    async doPermalinkEvent(props) {
+        this.setState({valid: false});
         const postId = props.match.params.postid;
-        GlobalActions.emitPostFocusEvent(postId, this.props.returnTo);
+        await GlobalActions.emitPostFocusEvent(postId, this.props.returnTo);
+        this.setState({...this.getStateFromStores(props), valid: true});
     }
 
     getStateFromStores(props) {
@@ -47,12 +48,12 @@ export default class PermalinkView extends React.PureComponent {
             channelId,
             channelName,
             teamName,
-            postId
+            postId,
         };
     }
 
     isStateValid() {
-        return this.state.channelId !== '' && this.state.teamName;
+        return this.state.valid && this.state.channelId !== '' && this.state.teamName;
     }
 
     updateState() {
@@ -75,7 +76,6 @@ export default class PermalinkView extends React.PureComponent {
 
     componentWillReceiveProps(nextProps) {
         this.doPermalinkEvent(nextProps);
-        this.setState(this.getStateFromStores(nextProps));
     }
 
     render() {

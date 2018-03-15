@@ -1,6 +1,8 @@
 // Copyright (c) 2016-present Mattermost, Inc. All Rights Reserved.
 // See License.txt for license information.
 
+import crypto from 'crypto';
+
 import PropTypes from 'prop-types';
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
@@ -13,7 +15,7 @@ import ErrorMessage from './error_message.jsx';
 
 export default class ErrorPage extends React.PureComponent {
     static propTypes = {
-        location: PropTypes.object.isRequired
+        location: PropTypes.object.isRequired,
     };
 
     componentDidMount() {
@@ -26,11 +28,25 @@ export default class ErrorPage extends React.PureComponent {
 
     render() {
         const params = new URLSearchParams(this.props.location.search);
+        const signature = params.get('s');
+
+        var trustParams = false;
+        if (signature) {
+            params.delete('s');
+
+            const key = window.mm_config.AsymmetricSigningPublicKey;
+            const keyPEM = '-----BEGIN PUBLIC KEY-----\n' + key + '\n-----END PUBLIC KEY-----';
+
+            const verify = crypto.createVerify('sha256');
+            verify.update('/error?' + params.toString());
+            trustParams = verify.verify(keyPEM, signature, 'base64');
+        }
+
         const type = params.get('type');
-        const title = params.get('title');
-        const message = params.get('message');
-        const service = params.get('service');
-        const returnTo = params.get('returnTo');
+        const title = (trustParams && params.get('title')) || '';
+        const message = (trustParams && params.get('message')) || '';
+        const service = (trustParams && params.get('service')) || '';
+        const returnTo = (trustParams && params.get('returnTo')) || '';
 
         let backButton;
         if (type === ErrorPageTypes.PERMALINK_NOT_FOUND && returnTo) {
@@ -47,7 +63,10 @@ export default class ErrorPage extends React.PureComponent {
                 <Link to='/'>
                     <FormattedMessage
                         id='error.generic.link'
-                        defaultMessage='Back to Mattermost'
+                        defaultMessage='Back to {siteName}'
+                        values={{
+                            siteName: global.window.mm_config.SiteName,
+                        }}
                     />
                 </Link>
             );

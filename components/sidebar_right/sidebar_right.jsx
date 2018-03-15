@@ -14,7 +14,7 @@ import Constants from 'utils/constants.jsx';
 import * as Utils from 'utils/utils.jsx';
 import FileUploadOverlay from 'components/file_upload_overlay.jsx';
 import RhsThread from 'components/rhs_thread';
-import SearchBox from 'components/search_bar';
+import SearchBar from 'components/search_bar';
 import SearchResults from 'components/search_results';
 
 export default class SidebarRight extends React.Component {
@@ -29,8 +29,8 @@ export default class SidebarRight extends React.Component {
         previousRhsState: PropTypes.string,
         actions: PropTypes.shape({
             getPinnedPosts: PropTypes.func,
-            getFlaggedPosts: PropTypes.func
-        })
+            getFlaggedPosts: PropTypes.func,
+        }),
     }
 
     constructor(props) {
@@ -40,7 +40,7 @@ export default class SidebarRight extends React.Component {
 
         this.state = {
             expanded: false,
-            useMilitaryTime: PreferenceStore.getBool(Constants.Preferences.CATEGORY_DISPLAY_SETTINGS, Constants.Preferences.USE_MILITARY_TIME, false)
+            useMilitaryTime: PreferenceStore.getBool(Constants.Preferences.CATEGORY_DISPLAY_SETTINGS, Constants.Preferences.USE_MILITARY_TIME, false),
         };
     }
 
@@ -65,7 +65,7 @@ export default class SidebarRight extends React.Component {
 
         if (!isOpen && willOpen) {
             this.setState({
-                expanded: false
+                expanded: false,
             });
         }
     }
@@ -79,7 +79,6 @@ export default class SidebarRight extends React.Component {
         $('.multi-teams .team-sidebar').removeClass('move--right');
         $('.app__body .sidebar--right').addClass('move--left');
 
-        //$('.sidebar--right').prepend('<div class="sidebar__overlay"></div>');
         if (!this.props.searchVisible && !this.props.postRightVisible) {
             $('.app__body .inner-wrap').removeClass('move--left').removeClass('move--right');
             $('.app__body .sidebar--right').removeClass('move--left');
@@ -88,11 +87,6 @@ export default class SidebarRight extends React.Component {
             );
         }
 
-        /*setTimeout(() => {
-            $('.sidebar__overlay').fadeOut('200', () => {
-                $('.sidebar__overlay').remove();
-            });
-            }, 500);*/
         return null;
     }
 
@@ -109,12 +103,8 @@ export default class SidebarRight extends React.Component {
     }
 
     onPreferenceChange = () => {
-        if (this.props.isFlaggedPosts) {
-            this.props.actions.getFlaggedPosts();
-        }
-
         this.setState({
-            useMilitaryTime: PreferenceStore.getBool(Constants.Preferences.CATEGORY_DISPLAY_SETTINGS, Constants.Preferences.USE_MILITARY_TIME, false)
+            useMilitaryTime: PreferenceStore.getBool(Constants.Preferences.CATEGORY_DISPLAY_SETTINGS, Constants.Preferences.USE_MILITARY_TIME, false),
         });
     }
 
@@ -126,7 +116,7 @@ export default class SidebarRight extends React.Component {
 
     onShrink = () => {
         this.setState({
-            expanded: false
+            expanded: false,
         });
     }
 
@@ -135,6 +125,19 @@ export default class SidebarRight extends React.Component {
     }
 
     render() {
+        const {
+            channel,
+            currentUser,
+            isFlaggedPosts,
+            isMentionSearch,
+            isPinnedPosts,
+            postRightVisible,
+            previousRhsState,
+            searchVisible,
+        } = this.props;
+
+        const {useMilitaryTime} = this.state;
+
         let content = null;
         let expandedClass = '';
 
@@ -143,11 +146,9 @@ export default class SidebarRight extends React.Component {
         }
 
         var searchForm = null;
-        if (this.props.currentUser) {
-            searchForm = <SearchBox isFocus={this.props.searchVisible && Utils.isMobile()}/>;
+        if (currentUser) {
+            searchForm = <SearchBar isFocus={searchVisible && !isFlaggedPosts && !isPinnedPosts}/>;
         }
-
-        const channel = this.props.channel;
 
         let channelDisplayName = '';
         if (channel) {
@@ -158,31 +159,31 @@ export default class SidebarRight extends React.Component {
             }
         }
 
-        if (this.props.searchVisible) {
+        if (searchVisible) {
             content = (
                 <div className='sidebar--right__content'>
                     <div className='search-bar__container channel-header alt'>{searchForm}</div>
                     <SearchResults
-                        isMentionSearch={this.props.isMentionSearch}
-                        isFlaggedPosts={this.props.isFlaggedPosts}
-                        isPinnedPosts={this.props.isPinnedPosts}
-                        useMilitaryTime={this.state.useMilitaryTime}
+                        isMentionSearch={isMentionSearch}
+                        isFlaggedPosts={isFlaggedPosts}
+                        isPinnedPosts={isPinnedPosts}
+                        useMilitaryTime={useMilitaryTime}
                         toggleSize={this.toggleSize}
                         shrink={this.onShrink}
                         channelDisplayName={channelDisplayName}
                     />
                 </div>
             );
-        } else if (this.props.postRightVisible) {
+        } else if (postRightVisible) {
             content = (
                 <div className='post-right__container'>
                     <FileUploadOverlay overlayType='right'/>
                     <div className='search-bar__container channel-header alt'>{searchForm}</div>
                     <RhsThread
-                        previousRhsState={this.props.previousRhsState}
+                        previousRhsState={previousRhsState}
                         isWebrtc={WebrtcStore.isBusy()}
-                        currentUser={this.props.currentUser}
-                        useMilitaryTime={this.state.useMilitaryTime}
+                        currentUser={currentUser}
+                        useMilitaryTime={useMilitaryTime}
                         toggleSize={this.toggleSize}
                         shrink={this.onShrink}
                     />

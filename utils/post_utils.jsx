@@ -42,8 +42,8 @@ export function isEdited(post) {
     return post.edit_at > 0;
 }
 
-export function getImageSrc(src) {
-    if (global.window.mm_config.HasImageProxy === 'true') {
+export function getImageSrc(src, hasImageProxy) {
+    if (hasImageProxy) {
         return Client4.getBaseRoute() + '/image?url=' + encodeURIComponent(src);
     }
     return src;
@@ -176,7 +176,7 @@ export function messageHtmlToComponent(html, isRHS, options = {}) {
                     />
                 );
                 return callAtMention;
-            }
+            },
         });
     }
 
@@ -193,7 +193,7 @@ export function messageHtmlToComponent(html, isRHS, options = {}) {
                     />
                 );
                 return callPostEmoji;
-            }
+            },
         });
     }
 
@@ -212,7 +212,7 @@ export function messageHtmlToComponent(html, isRHS, options = {}) {
                     />
                 );
                 return callMarkdownImage;
-            }
+            },
         });
     }
 
@@ -223,13 +223,13 @@ export function messageHtmlToComponent(html, isRHS, options = {}) {
                 return (
                     <LatexBlock content={node.attribs['data-latex']}/>
                 );
-            }
+            },
         });
     }
 
     processingInstructions.push({
         shouldProcessNode: () => true,
-        processNode: processNodeDefinitions.processDefaultNode
+        processNode: processNodeDefinitions.processDefaultNode,
     });
 
     return parser.parseWithInstructions(html, isValidNode, processingInstructions);

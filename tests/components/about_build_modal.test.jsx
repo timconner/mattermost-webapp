@@ -39,11 +39,11 @@ describe('components/AboutBuildModal', () => {
             SQLDriverName: 'Postgres',
             BuildHash: 'abcdef1234567890',
             BuildHashEnterprise: '0123456789abcdef',
-            BuildDate: '21 January 2017'
+            BuildDate: '21 January 2017',
         };
         license = {
             IsLicensed: 'true',
-            Company: 'Mattermost Inc'
+            Company: 'Mattermost Inc',
         };
     });
 
@@ -57,7 +57,7 @@ describe('components/AboutBuildModal', () => {
         const teamConfig = {
             ...config,
             BuildEnterpriseReady: 'false',
-            BuildHashEnterprise: ''
+            BuildHashEnterprise: '',
         };
 
         const wrapper = shallowAboutBuildModal({config: teamConfig, license: {}});
@@ -70,7 +70,7 @@ describe('components/AboutBuildModal', () => {
             BuildEnterpriseReady: 'false',
             BuildHashEnterprise: '',
             Version: '3.6.0',
-            BuildNumber: '3.6.0'
+            BuildNumber: '3.6.0',
         };
 
         const wrapper = shallowAboutBuildModal({config: sameBuildConfig, license: {}});
@@ -84,7 +84,7 @@ describe('components/AboutBuildModal', () => {
             BuildEnterpriseReady: 'false',
             BuildHashEnterprise: '',
             Version: '3.6.0',
-            BuildNumber: '3.6.2'
+            BuildNumber: '3.6.2',
         };
 
         const wrapper = shallowAboutBuildModal({config: differentBuildConfig, license: {}});
@@ -101,6 +101,7 @@ describe('components/AboutBuildModal', () => {
             <AboutBuildModal
                 config={config}
                 license={license}
+                webappBuildHash='0a1b2c3d4f'
                 show={true}
                 onModalDismissed={onHide}
             />
@@ -116,7 +117,8 @@ describe('components/AboutBuildModal', () => {
         const allProps = {
             show,
             onModalDismissed,
-            ...props
+            webappBuildHash: '0a1b2c3d4f',
+            ...props,
         };
 
         return shallow(<AboutBuildModal {...allProps}/>);

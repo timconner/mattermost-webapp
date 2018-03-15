@@ -11,7 +11,7 @@ import {
     removeReaction,
     addMessageIntoHistory,
     moveHistoryIndexBack,
-    moveHistoryIndexForward
+    moveHistoryIndexForward,
 } from 'mattermost-redux/actions/posts';
 import {Posts} from 'mattermost-redux/constants';
 
@@ -20,7 +20,8 @@ import * as GlobalActions from 'actions/global_actions.jsx';
 import * as ChannelActions from 'actions/channel_actions.jsx';
 import {setGlobalItem, actionOnGlobalItemsWithPrefix} from 'actions/storage';
 import {EmojiMap} from 'stores/emoji_store.jsx';
-import {makeGetCommentDraft} from 'selectors/rhs';
+import {getPostDraft} from 'selectors/rhs';
+
 import * as Utils from 'utils/utils.jsx';
 import {Constants, StoragePrefixes} from 'utils/constants.jsx';
 
@@ -39,11 +40,9 @@ export function updateCommentDraft(rootId, draft) {
 
 export function makeOnMoveHistoryIndex(rootId, direction) {
     const getMessageInHistory = makeGetMessageInHistoryItem(Posts.MESSAGE_TYPES.COMMENT);
-    const getCommentDraft = makeGetCommentDraft(rootId);
 
     return () => (dispatch, getState) => {
-        const draft = getCommentDraft(getState());
-
+        const draft = getPostDraft(getState(), StoragePrefixes.COMMENT_DRAFT, rootId);
         if (draft.message !== '' && draft.message !== getMessageInHistory(getState())) {
             return;
         }
@@ -76,7 +75,7 @@ export function submitPost(channelId, rootId, draft) {
             parent_id: rootId,
             pending_post_id: `${userId}:${time}`,
             user_id: userId,
-            create_at: time
+            create_at: time,
         };
 
         GlobalActions.emitUserCommentedEvent(post);
@@ -106,7 +105,7 @@ export function submitCommand(channelId, rootId, draft) {
             channel_id: channelId,
             team_id: teamId,
             root_id: rootId,
-            parent_id: rootId
+            parent_id: rootId,
         };
 
         const {message} = draft;
@@ -124,10 +123,8 @@ export function submitCommand(channelId, rootId, draft) {
 }
 
 export function makeOnSubmit(channelId, rootId, latestPostId) {
-    const getCommentDraft = makeGetCommentDraft(rootId);
-
     return () => async (dispatch, getState) => {
-        const draft = getCommentDraft(getState());
+        const draft = getPostDraft(getState(), StoragePrefixes.COMMENT_DRAFT, rootId);
         const {message} = draft;
 
         dispatch(addMessageIntoHistory(message));

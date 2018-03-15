@@ -2,10 +2,11 @@
 // See License.txt for license information.
 
 import {batchActions} from 'redux-batched-actions';
-import {PostTypes} from 'mattermost-redux/action_types';
+import {PostTypes, SearchTypes} from 'mattermost-redux/action_types';
 import {getMyChannelMember} from 'mattermost-redux/actions/channels';
 import * as PostActions from 'mattermost-redux/actions/posts';
 import * as Selectors from 'mattermost-redux/selectors/entities/posts';
+import {comparePosts} from 'mattermost-redux/utils/post_utils';
 
 import {browserHistory} from 'utils/browser_history';
 import {sendDesktopNotification} from 'actions/notification_actions.jsx';
@@ -16,8 +17,8 @@ import ChannelStore from 'stores/channel_store.jsx';
 import PostStore from 'stores/post_store.jsx';
 import store from 'stores/redux_store.jsx';
 import TeamStore from 'stores/team_store.jsx';
-import {getSelectedPostId} from 'selectors/rhs';
-import {ActionTypes, Constants} from 'utils/constants.jsx';
+import {getSelectedPostId, getRhsState} from 'selectors/rhs';
+import {ActionTypes, Constants, RHSStates} from 'utils/constants.jsx';
 import {EMOJI_PATTERN} from 'utils/emoticons.jsx';
 import * as UserAgent from 'utils/user_agent';
 
@@ -67,7 +68,7 @@ function dispatchPostActions(post, websocketMessageProps) {
         dispatch({
             type: ActionTypes.INCREASE_POST_VISIBILITY,
             data: post.channel_id,
-            amount: 1
+            amount: 1,
         });
     }
 
@@ -77,28 +78,73 @@ function dispatchPostActions(post, websocketMessageProps) {
         data: {
             order: [],
             posts: {
-                [post.id]: post
-            }
+                [post.id]: post,
+            },
         },
-        channelId: post.channel_id
+        channelId: post.channel_id,
     });
 
     // Still needed to update unreads
     AppDispatcher.handleServerAction({
         type: ActionTypes.RECEIVED_POST,
         post,
-        websocketMessageProps
+        websocketMessageProps,
     });
 
     sendDesktopNotification(post, websocketMessageProps);
 }
 
-export function flagPost(postId) {
-    PostActions.flagPost(postId)(dispatch, getState);
+export async function flagPost(postId) {
+    await PostActions.flagPost(postId)(dispatch, getState);
+
+    const rhsState = getRhsState(getState());
+
+    // This is a hack that should be fixed with better reducers/actions, see MM-9793
+    if (rhsState === RHSStates.FLAG) {
+        let results = getState().entities.search.results;
+        const index = results.indexOf(postId);
+        if (index === -1) {
+            results = [...results, postId];
+
+            const posts = {};
+            results.forEach((id) => {
+                posts[id] = Selectors.getPost(getState(), id);
+            });
+
+            results.sort((a, b) => comparePosts(posts[a], posts[b]));
+
+            dispatch({
+                type: SearchTypes.RECEIVED_SEARCH_POSTS,
+                data: {posts, order: results},
+            });
+        }
+    }
 }
 
-export function unflagPost(postId) {
-    PostActions.unflagPost(postId)(dispatch, getState);
+export async function unflagPost(postId) {
+    await PostActions.unflagPost(postId)(dispatch, getState);
+
+    const rhsState = getRhsState(getState());
+
+    // This is a hack that should be fixed with better reducers/actions, see MM-9793
+    if (rhsState === RHSStates.FLAG) {
+        let results = getState().entities.search.results;
+        const index = results.indexOf(postId);
+        if (index > -1) {
+            results = [...results];
+            results.splice(index, 1);
+
+            const posts = {};
+            results.forEach((id) => {
+                posts[id] = Selectors.getPost(getState(), id);
+            });
+
+            dispatch({
+                type: SearchTypes.RECEIVED_SEARCH_POSTS,
+                data: {posts, order: results},
+            });
+        }
+    }
 }
 
 export function addReaction(channelId, postId, emojiName) {
@@ -144,7 +190,7 @@ export async function updatePost(post, success) {
         AppDispatcher.handleServerAction({
             type: ActionTypes.RECEIVED_ERROR,
             err: {id: err.server_error_id, ...err},
-            method: 'editPost'
+            method: 'editPost',
         });
     }
 }
@@ -152,7 +198,7 @@ export async function updatePost(post, success) {
 export function emitEmojiPosted(emoji) {
     AppDispatcher.handleServerAction({
         type: ActionTypes.EMOJI_POSTED,
-        alias: emoji
+        alias: emoji,
     });
 }
 
@@ -170,19 +216,19 @@ export async function deletePost(channelId, post, success) {
         dispatch({
             type: ActionTypes.SELECT_POST,
             postId: '',
-            channelId: ''
+            channelId: '',
         });
     }
 
     dispatch({
         type: PostTypes.REMOVE_POST,
-        data: post
+        data: post,
     });
 
     // Needed for search store
     AppDispatcher.handleViewAction({
         type: Constants.ActionTypes.REMOVE_POST,
-        post
+        post,
     });
 
     const {focusedPostId} = getState().views.channel;
@@ -215,13 +261,13 @@ export function increasePostVisibility(channelId, focusedPostId) {
             {
                 type: ActionTypes.LOADING_POSTS,
                 data: true,
-                channelId
+                channelId,
             },
             {
                 type: ActionTypes.INCREASE_POST_VISIBILITY,
                 data: channelId,
-                amount: POST_INCREASE_AMOUNT
-            }
+                amount: POST_INCREASE_AMOUNT,
+            },
         ]));
 
         const page = Math.floor(currentPostVisibility / POST_INCREASE_AMOUNT);
@@ -237,7 +283,7 @@ export function increasePostVisibility(channelId, focusedPostId) {
         doDispatch({
             type: ActionTypes.LOADING_POSTS,
             data: false,
-            channelId
+            channelId,
         });
 
         return posts.order.length >= POST_INCREASE_AMOUNT;
@@ -255,7 +301,7 @@ export function pinPost(postId) {
 
         AppDispatcher.handleServerAction({
             type: ActionTypes.RECEIVED_POST_PINNED,
-            postId
+            postId,
         });
     };
 }
@@ -266,7 +312,7 @@ export function unpinPost(postId) {
 
         AppDispatcher.handleServerAction({
             type: ActionTypes.RECEIVED_POST_UNPINNED,
-            postId
+            postId,
         });
     };
 }
@@ -299,7 +345,7 @@ export function setEditingPost(postId = '', commentsCount = 0, refocusId = '', t
         if (canEditNow) {
             doDispatch({
                 type: ActionTypes.SHOW_EDIT_POST_MODAL,
-                data: {postId, commentsCount, refocusId, title}
+                data: {postId, commentsCount, refocusId, title},
             }, doGetState);
         }
 
@@ -309,6 +355,6 @@ export function setEditingPost(postId = '', commentsCount = 0, refocusId = '', t
 
 export function hideEditPostModal() {
     return {
-        type: ActionTypes.HIDE_EDIT_POST_MODAL
+        type: ActionTypes.HIDE_EDIT_POST_MODAL,
     };
 }

@@ -11,10 +11,17 @@ import {getBool} from 'mattermost-redux/selectors/entities/preferences';
 import {getMyTeamMember} from 'mattermost-redux/selectors/entities/teams';
 import {getCurrentUser, getStatusForUserId, getUser} from 'mattermost-redux/selectors/entities/users';
 import {getUserIdFromChannelName, isDefault, isFavoriteChannel} from 'mattermost-redux/utils/channel_utils';
+import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
 import {withRouter} from 'react-router-dom';
 
-import {showFlaggedPosts, showPinnedPosts, showMentions, closeRightHandSide} from 'actions/views/rhs';
+import {
+    showFlaggedPosts,
+    showPinnedPosts,
+    showMentions,
+    closeRightHandSide,
+    updateRhsState,
+} from 'actions/views/rhs';
 import {openModal} from 'actions/views/modals';
 import {getRhsState} from 'selectors/rhs';
 
@@ -33,6 +40,9 @@ function mapStateToProps(state, ownProps) {
         dmUserStatus = {status: getStatusForUserId(state, dmUserId)};
     }
 
+    const config = getConfig(state);
+    const enableWebrtc = config.EnableWebrtc === 'true';
+
     return {
         channel,
         channelMember: getMyChannelMember(state, ownProps.channelId),
@@ -43,7 +53,8 @@ function mapStateToProps(state, ownProps) {
         dmUser,
         dmUserStatus,
         enableFormatting: getBool(state, Preferences.CATEGORY_ADVANCED_SETTINGS, 'formatting', true),
-        rhsState: getRhsState(state)
+        rhsState: getRhsState(state),
+        enableWebrtc,
     };
 }
 
@@ -57,9 +68,10 @@ function mapDispatchToProps(dispatch) {
             showPinnedPosts,
             showMentions,
             closeRightHandSide,
+            updateRhsState,
             openModal,
-            getCustomEmojisInText
-        }, dispatch)
+            getCustomEmojisInText,
+        }, dispatch),
     };
 }
 

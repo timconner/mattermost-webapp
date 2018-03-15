@@ -7,14 +7,14 @@ import {FormattedMessage} from 'react-intl';
 
 export default class LatexBlock extends React.Component {
     static propTypes = {
-        content: PropTypes.string.isRequired
+        content: PropTypes.string.isRequired,
     }
 
     constructor(props) {
         super(props);
 
         this.state = {
-            katex: null
+            katex: null,
         };
     }
 
