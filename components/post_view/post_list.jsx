@@ -650,6 +650,13 @@ export default class PostList extends React.PureComponent {
                         id='posts_view.loadingMore'
                         defaultMessage='Loading more messages...'
                     />
+                    <button
+                        ref='loadmoretop'
+                        className='more-messages-text theme style--none color--link'
+                        onClick={this.loadMorePosts}
+                    >
+                        (Click if stalled)
+                    </button>
                 </div>
             );
         }
