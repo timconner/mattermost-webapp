@@ -49,6 +49,11 @@ export function formatText(text, inputOptions) {
     var emojiiOnly = new RegExp('^( *:[\\w-]+:* *)*$');
     if (emojiiOnly.test(output)) {
         output = '# ' + output;
+    } else {
+        var codeBlockDetect = new RegExp('^```.* .+[\\s\\S]+```$');
+        if (codeBlockDetect.test(output)) {
+            output = [output.slice(0, 3), '\n', output.slice(3)].join('');
+        }
     }
 
     const options = Object.assign({}, inputOptions);
