@@ -80,10 +80,11 @@ export function executeCommand(message, args, success, error) {
             return;
         }
         const channel = ChannelStore.getCurrent();
-        if (channel.type === Constants.PRIVATE_CHANNEL) {
-            GlobalActions.showLeavePrivateChannelModal(channel);
-            return;
-        } else if (
+        //if (channel.type === Constants.PRIVATE_CHANNEL) {
+        //    GlobalActions.showLeavePrivateChannelModal(channel);
+        //    return;
+        //} else 
+        if (
             channel.type === Constants.DM_CHANNEL ||
                 channel.type === Constants.GM_CHANNEL
         ) {
