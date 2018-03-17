@@ -118,7 +118,7 @@ export default class PostList extends React.PureComponent {
             isDoingInitialLoad: true,
             isScrolling: false,
             lastViewed: props.lastViewedAt,
-            loadedMorePosts: true
+            loadedMorePosts: true,
         };
     }
 

@@ -73,7 +73,7 @@ const messages = defineMessages({
     },
     selfHighlightBg: {
         id: 'user.settings.custom_theme.selfHighlightBg',
-        defaultMessage: 'Self Post Highlight'
+        defaultMessage: 'Self Post Highlight',
     },
     centerChannelColor: {
         id: 'user.settings.custom_theme.centerChannelColor',
