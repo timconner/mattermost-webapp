@@ -956,7 +956,7 @@ export const Constants = {
         {
             group: 'centerChannelElements',
             id: 'selfHighlightBg',
-            uiName: 'Self Highlight BG'
+            uiName: 'Self Highlight BG',
         },
         {
             group: 'centerChannelElements',

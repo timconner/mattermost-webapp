@@ -411,7 +411,11 @@ class ProfilePopover extends React.Component {
 
         let title = `@${this.props.user.username}`;
         if (this.props.hasMention) {
-            title = <a onClick={this.handleMentionKeyClick}>{title}</a>;
+            if (Utils.isAdmin(this.props.user.roles)) {
+                title = <span><a onClick={this.handleMentionKeyClick}>{title}</a>{' - NSF Admin'}</span>;
+            } else {
+                title = <a onClick={this.handleMentionKeyClick}>{title}</a>;
+            }
         }
 
         return (
