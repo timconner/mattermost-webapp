@@ -394,8 +394,8 @@ export default class PostList extends React.PureComponent {
 
     infiniteScroll = debounce(() => {
         if (this.shouldInfiniteScroll()) {
-            this.loadMorePosts();
             this.setState({loadedMorePosts: false});
+            this.loadMorePosts();
         }
     }, 250);
 
