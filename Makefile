@@ -60,6 +60,8 @@ else
 	done
 endif
 
+restart: | stop run ## Restarts the app
+
 clean: ## Clears cached; deletes node_modules and dist directories
 	@echo Cleaning Webapp
 

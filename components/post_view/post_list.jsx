@@ -7,7 +7,6 @@ import ReactDOM from 'react-dom';
 import {FormattedMessage} from 'react-intl';
 import {debounce} from 'underscore';
 
-import {createChannelIntroMessage} from 'utils/channel_intro_messages.jsx';
 import Constants, {PostTypes} from 'utils/constants.jsx';
 import DelayedAction from 'utils/delayed_action.jsx';
 import EventTypes from 'utils/event_types.jsx';
@@ -21,6 +20,7 @@ import FloatingTimestamp from './floating_timestamp.jsx';
 import NewMessageIndicator from './new_message_indicator.jsx';
 import Post from './post';
 import ScrollToBottomArrows from './scroll_to_bottom_arrows.jsx';
+import CreateChannelIntroMessage from './channel_intro_message';
 
 const CLOSE_TO_BOTTOM_SCROLL_MARGIN = 10;
 const POSTS_PER_PAGE = Constants.POST_CHUNK_SIZE / 2;
@@ -204,6 +204,7 @@ export default class PostList extends React.PureComponent {
                 const rect = element.getBoundingClientRect();
                 const listHeight = postList.clientHeight / 2;
                 postList.scrollTop += rect.top - listHeight;
+                this.atBottom = this.checkBottom();
             } else if (this.previousScrollHeight !== postList.scrollHeight && posts[0].id === prevPosts[0].id) {
                 postList.scrollTop = this.previousScrollTop + (postList.scrollHeight - this.previousScrollHeight);
             }
@@ -573,7 +574,12 @@ export default class PostList extends React.PureComponent {
 
         let topRow;
         if (this.state.atEnd) {
-            topRow = createChannelIntroMessage(channel, this.props.fullWidth);
+            topRow = (
+                <CreateChannelIntroMessage
+                    channel={channel}
+                    fullWidth={this.props.fullWidth}
+                />
+            );
         } else if (this.props.postVisibility >= Constants.MAX_POST_VISIBILITY) {
             topRow = (
                 <div className='post-list__loading post-list__loading-search'>

@@ -7,7 +7,7 @@ import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {getCurrentTeamId} from 'mattermost-redux/selectors/entities/teams';
 import {getCurrentChannel, getCurrentChannelStats} from 'mattermost-redux/selectors/entities/channels';
 import {getCurrentUserId, isCurrentUserSystemAdmin} from 'mattermost-redux/selectors/entities/users';
-import {get, getBool} from 'mattermost-redux/selectors/entities/preferences';
+import {get, getInt, getBool} from 'mattermost-redux/selectors/entities/preferences';
 import {
     getCurrentUsersLatestPost,
     getLatestReplyablePostId,
@@ -46,7 +46,7 @@ function mapStateToProps() {
         const latestReplyablePostId = getLatestReplyablePostId(state);
         const currentChannelMembersCount = getCurrentChannelStats(state) ? getCurrentChannelStats(state).member_count : 1;
         const enableTutorial = config.EnableTutorial === 'true';
-        const tutorialStep = parseInt(get(state, Preferences.TUTORIAL_STEP, getCurrentUserId(state), TutorialSteps.FINISHED), 10);
+        const tutorialStep = getInt(state, Preferences.TUTORIAL_STEP, getCurrentUserId(state), TutorialSteps.FINISHED);
         const enableEmojiPicker = config.EnableEmojiPicker === 'true';
         const enableConfirmNotificationsToChannel = config.EnableConfirmNotificationsToChannel === 'true';
 
@@ -65,7 +65,7 @@ function mapStateToProps() {
             latestReplyablePostId,
             currentUsersLatestPost: getCurrentUsersLatestPost(state),
             readOnlyChannel: !isCurrentUserSystemAdmin(state) && config.ExperimentalTownSquareIsReadOnly === 'true' && currentChannel.name === Constants.DEFAULT_CHANNEL,
-            canUploadFiles: canUploadFiles(state),
+            canUploadFiles: canUploadFiles(config),
             enableEmojiPicker,
             enableConfirmNotificationsToChannel,
         };

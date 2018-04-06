@@ -6,6 +6,7 @@ import React from 'react';
 import {FormattedMessage} from 'react-intl';
 import {Posts} from 'mattermost-redux/constants/index';
 import * as ReduxPostUtils from 'mattermost-redux/utils/post_utils';
+import Permissions from 'mattermost-redux/constants/permissions';
 
 import {addReaction, emitEmojiPosted} from 'actions/post_actions.jsx';
 import TeamStore from 'stores/team_store.jsx';
@@ -24,17 +25,18 @@ import ReactionListContainer from 'components/post_view/reaction_list';
 import ProfilePicture from 'components/profile_picture.jsx';
 import EmojiIcon from 'components/svg/emoji_icon';
 import MattermostLogo from 'components/svg/mattermost_logo';
+import ChannelPermissionGate from 'components/permissions_gates/channel_permission_gate';
 
 import UserProfile from 'components/user_profile.jsx';
 
 export default class RhsComment extends React.Component {
     static propTypes = {
         post: PropTypes.object,
+        teamId: PropTypes.object.isRequired,
         lastPostCount: PropTypes.number,
         user: PropTypes.object,
         currentUser: PropTypes.object.isRequired,
         compactDisplay: PropTypes.bool,
-        useMilitaryTime: PropTypes.bool.isRequired,
         isFlagged: PropTypes.bool,
         status: PropTypes.string,
         isBusy: PropTypes.bool,
@@ -44,6 +46,7 @@ export default class RhsComment extends React.Component {
         isEmbedVisible: PropTypes.bool,
         enableEmojiPicker: PropTypes.bool.isRequired,
         enablePostUsernameOverride: PropTypes.bool.isRequired,
+        isReadOnly: PropTypes.bool.isRequired,
     };
 
     constructor(props) {
@@ -66,10 +69,6 @@ export default class RhsComment extends React.Component {
         }
 
         if (nextProps.compactDisplay !== this.props.compactDisplay) {
-            return true;
-        }
-
-        if (nextProps.useMilitaryTime !== this.props.useMilitaryTime) {
             return true;
         }
 
@@ -143,7 +142,6 @@ export default class RhsComment extends React.Component {
             <PostTime
                 isPermalink={isPermalink}
                 eventTime={post.create_at}
-                useMilitaryTime={this.props.useMilitaryTime}
                 postId={post.id}
             />
         );
@@ -203,7 +201,7 @@ export default class RhsComment extends React.Component {
     };
 
     render() {
-        const post = this.props.post;
+        const {post, isReadOnly} = this.props;
 
         let idCount = -1;
         if (this.props.lastPostCount >= 0 && this.props.lastPostCount < Constants.TEST_ID_COUNT) {
@@ -348,7 +346,7 @@ export default class RhsComment extends React.Component {
 
         let react;
 
-        if (!isEphemeral && !post.failed && !isSystemMessage && this.props.enableEmojiPicker) {
+        if (!isReadOnly && !isEphemeral && !post.failed && !isSystemMessage && this.props.enableEmojiPicker) {
             react = (
                 <span>
                     <EmojiPickerOverlay
@@ -360,15 +358,20 @@ export default class RhsComment extends React.Component {
                         spaceRequiredAbove={342}
                         spaceRequiredBelow={342}
                     />
-                    <button
-                        className='reacticon__container reaction color--link style--none'
-                        onClick={this.toggleEmojiPicker}
-                        ref={'rhs_reacticon_' + post.id}
+                    <ChannelPermissionGate
+                        channelId={post.channel_id}
+                        teamId={this.props.teamId}
+                        permissions={[Permissions.ADD_REACTION]}
                     >
-                        <EmojiIcon className='icon icon--emoji'/>
-                    </button>
+                        <button
+                            className='reacticon__container reaction color--link style--none'
+                            onClick={this.toggleEmojiPicker}
+                            ref={'rhs_reacticon_' + post.id}
+                        >
+                            <EmojiIcon className='icon icon--emoji'/>
+                        </button>
+                    </ChannelPermissionGate>
                 </span>
-
             );
         }
 
@@ -383,10 +386,12 @@ export default class RhsComment extends React.Component {
             const dotMenu = (
                 <DotMenu
                     idPrefix={Constants.RHS}
+                    isRHS={true}
                     idCount={idCount}
                     post={this.props.post}
                     isFlagged={this.props.isFlagged}
                     handleDropdownOpened={this.handleDropdownOpened}
+                    isReadOnly={isReadOnly}
                 />
             );
 
@@ -470,7 +475,10 @@ export default class RhsComment extends React.Component {
                                 {messageWithAdditionalContent}
                             </div>
                             {fileAttachment}
-                            <ReactionListContainer post={post}/>
+                            <ReactionListContainer
+                                post={post}
+                                isReadOnly={isReadOnly}
+                            />
                         </div>
                     </div>
                 </div>

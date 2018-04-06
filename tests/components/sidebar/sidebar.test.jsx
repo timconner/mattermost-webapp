@@ -60,6 +60,7 @@ describe('component/sidebar/sidebar_channel/SidebarChannel', () => {
             EnableXToLeaveChannelsFromLHS: 'false',
             SiteName: 'Test site',
         },
+        isOpen: false,
         showUnreadSection: false,
         publicChannelIds: ['c1', 'c2'],
         privateChannelIds: ['c3', 'c4'],
@@ -73,6 +74,7 @@ describe('component/sidebar/sidebar_channel/SidebarChannel', () => {
             type: Constants.OPEN_CHANNEL,
         },
         currentTeam: {
+            id: 'team_id',
             name: 'test-team',
             display_name: 'Test team display name',
             description: 'Test team description',
@@ -105,10 +107,9 @@ describe('component/sidebar/sidebar_channel/SidebarChannel', () => {
             messageCount: 0,
             mentions: 0,
         },
-        showCreatePublicChannelOption: true,
-        showCreatePrivateChannelOption: true,
         actions: {
             goToChannelById: jest.fn(),
+            close: jest.fn(),
         },
     };
 
@@ -144,19 +145,6 @@ describe('component/sidebar/sidebar_channel/SidebarChannel', () => {
         expect(wrapper).toMatchSnapshot();
     });
 
-    test('should match snapshot, on sidebar show without permissions to create', () => {
-        const wrapper = shallow(
-            <Sidebar
-                {...{
-                    ...defaultProps,
-                    showCreatePublicChannelOption: false,
-                    showCreatePrivateChannelOption: false,
-                }}
-            />
-        );
-        expect(wrapper).toMatchSnapshot();
-    });
-
     test('should match snapshot, when render as an empty div because no have a team or a user', () => {
         let wrapper = shallow(
             <Sidebar
@@ -183,13 +171,15 @@ describe('component/sidebar/sidebar_channel/SidebarChannel', () => {
             preventDefault: jest.fn(),
             altKey: true,
             shiftKey: false,
-            keyCode: Constants.KeyCodes.DOWN,
+            key: Constants.KeyCodes.DOWN[0],
+            keyCode: Constants.KeyCodes.DOWN[1],
         };
         const prevEvent = {
             preventDefault: jest.fn(),
             altKey: true,
             shiftKey: false,
-            keyCode: Constants.KeyCodes.UP,
+            key: Constants.KeyCodes.UP[0],
+            keyCode: Constants.KeyCodes.UP[1],
         };
 
         const wrapper = shallow(
@@ -269,13 +259,15 @@ describe('component/sidebar/sidebar_channel/SidebarChannel', () => {
             preventDefault: jest.fn(),
             altKey: true,
             shiftKey: true,
-            keyCode: Constants.KeyCodes.DOWN,
+            key: Constants.KeyCodes.DOWN[0],
+            keyCode: Constants.KeyCodes.DOWN[1],
         };
         const prevEvent = {
             preventDefault: jest.fn(),
             altKey: true,
             shiftKey: true,
-            keyCode: Constants.KeyCodes.UP,
+            key: Constants.KeyCodes.UP[0],
+            keyCode: Constants.KeyCodes.UP[1],
         };
 
         const wrapper = shallow(
@@ -342,14 +334,16 @@ describe('component/sidebar/sidebar_channel/SidebarChannel', () => {
             altKey: false,
             shiftKey: true,
             ctrlKey: true,
-            keyCode: Constants.KeyCodes.K,
+            key: Constants.KeyCodes.K[0],
+            keyCode: Constants.KeyCodes.K[1],
         };
         const cmdShiftK = {
             preventDefault: jest.fn(),
             altKey: false,
             shiftKey: true,
             metaKey: true,
-            keyCode: Constants.KeyCodes.K,
+            key: Constants.KeyCodes.K[0],
+            keyCode: Constants.KeyCodes.K[1],
         };
 
         const wrapper = shallow(

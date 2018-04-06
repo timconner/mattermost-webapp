@@ -6,6 +6,7 @@ import {FormattedMessage} from 'react-intl';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Scrollbars from 'react-custom-scrollbars';
+import {Posts} from 'mattermost-redux/constants';
 
 import PreferenceStore from 'stores/preference_store.jsx';
 import UserStore from 'stores/user_store.jsx';
@@ -55,7 +56,6 @@ export default class RhsThread extends React.Component {
         previousRhsState: PropTypes.string,
         isWebrtc: PropTypes.bool,
         currentUser: PropTypes.object.isRequired,
-        useMilitaryTime: PropTypes.bool.isRequired,
         toggleSize: PropTypes.func,
         shrink: PropTypes.func,
         previewCollapsed: PropTypes.string.isRequired,
@@ -148,10 +148,6 @@ export default class RhsThread extends React.Component {
         }
 
         if (nextState.compactDisplay !== this.state.compactDisplay) {
-            return true;
-        }
-
-        if (nextProps.useMilitaryTime !== this.props.useMilitaryTime) {
             return true;
         }
 
@@ -366,11 +362,11 @@ export default class RhsThread extends React.Component {
                     <Comment
                         ref={comPost.id}
                         post={comPost}
+                        teamId={this.props.channel.team_id}
                         lastPostCount={(reverseCount >= 0 && reverseCount < Constants.TEST_ID_COUNT) ? reverseCount : -1}
                         user={p}
                         currentUser={this.props.currentUser}
                         compactDisplay={this.state.compactDisplay}
-                        useMilitaryTime={this.props.useMilitaryTime}
                         isFlagged={isFlagged}
                         status={status}
                         isBusy={this.state.isBusy}
@@ -390,6 +386,7 @@ export default class RhsThread extends React.Component {
                     <CreateComment
                         channelId={selected.channel_id}
                         rootId={selected.id}
+                        rootDeleted={selected.state === Posts.POST_DELETED}
                         latestPostId={postsLength > 0 ? postsArray[postsLength - 1].id : selected.id}
                         getSidebarBody={this.getSidebarBody}
                     />
@@ -448,7 +445,6 @@ export default class RhsThread extends React.Component {
                             user={profile}
                             currentUser={this.props.currentUser}
                             compactDisplay={this.state.compactDisplay}
-                            useMilitaryTime={this.props.useMilitaryTime}
                             isFlagged={isRootFlagged}
                             status={rootStatus}
                             previewCollapsed={this.props.previewCollapsed}
