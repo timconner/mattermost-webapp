@@ -36,13 +36,18 @@ import solarizedDarkCSS from '!!file-loader?name=files/code_themes/[hash].[ext]!
 // eslint-disable-line import/order
 import solarizedLightCSS from '!!file-loader?name=files/code_themes/[hash].[ext]!highlight.js/styles/solarized-light.css'; // eslint-disable-line import/order
 
-export const PluginSettings = {
+export const SettingsTypes = {
     TYPE_TEXT: 'text',
+    TYPE_NUMBER: 'number',
     TYPE_BOOL: 'bool',
     TYPE_RADIO: 'radio',
+    TYPE_BANNER: 'banner',
     TYPE_DROPDOWN: 'dropdown',
     TYPE_GENERATED: 'generated',
     TYPE_USERNAME: 'username',
+    TYPE_BUTTON: 'button',
+    TYPE_LANGUAGE: 'language',
+    TYPE_CUSTOM: 'custom',
 };
 
 export const Preferences = {
@@ -66,6 +71,7 @@ export const Preferences = {
     COLLAPSE_DISPLAY: 'collapse_previews',
     COLLAPSE_DISPLAY_DEFAULT: 'false',
     USE_MILITARY_TIME: 'use_military_time',
+    USE_MILITARY_TIME_DEFAULT: 'false',
     CATEGORY_THEME: 'theme',
     CATEGORY_FLAGGED_POST: 'flagged_post',
     CATEGORY_NOTIFICATIONS: 'notifications',
@@ -75,11 +81,11 @@ export const Preferences = {
     INTERVAL_FIFTEEN_MINUTES: 15 * 60,
     INTERVAL_HOUR: 60 * 60,
     INTERVAL_NEVER: 0,
+    NAME_NAME_FORMAT: 'name_format',
 };
 
 export const ActionTypes = keyMirror({
     RECEIVED_ERROR: null,
-
     CLICK_CHANNEL: null,
     CREATE_CHANNEL: null,
     CREATE_POST: null,
@@ -113,6 +119,7 @@ export const ActionTypes = keyMirror({
 
     UPDATE_RHS_STATE: null,
     UPDATE_RHS_SEARCH_TERMS: null,
+    UPDATE_RHS_SEARCH_RESULTS_TERMS: null,
 
     UPDATE_MOBILE_VIEW: null,
 
@@ -196,8 +203,6 @@ export const ActionTypes = keyMirror({
 
     SHOW_SEARCH: null,
 
-    USER_TYPING: null,
-
     TOGGLE_ACCOUNT_SETTINGS_MODAL: null,
     TOGGLE_SHORTCUTS_MODAL: null,
     TOGGLE_IMPORT_THEME_MODAL: null,
@@ -228,6 +233,7 @@ export const ActionTypes = keyMirror({
 
     RECEIVED_PLUGIN_COMPONENTS: null,
     RECEIVED_PLUGIN_POST_TYPES: null,
+    RECEIVED_PLUGIN_MENU_ACTIONS: null,
     RECEIVED_WEBAPP_PLUGINS: null,
     RECEIVED_WEBAPP_PLUGIN: null,
     REMOVED_WEBAPP_PLUGIN: null,
@@ -240,6 +246,19 @@ export const ActionTypes = keyMirror({
     SELECT_CHANNEL_WITH_MEMBER: null,
 
     INCREMENT_EMOJI_PICKER_PAGE: null,
+
+    TOGGLE_LHS: null,
+    OPEN_LHS: null,
+    CLOSE_LHS: null,
+
+    TOGGLE_RHS_MENU: null,
+    OPEN_RHS_MENU: null,
+    CLOSE_RHS_MENU: null,
+
+    INIT_WEBRTC: null,
+    CLOSE_WEBRTC: null,
+
+    STORE_REHYDRATION_FAILED: null,
 });
 
 export const WebrtcActionTypes = keyMirror({
@@ -256,7 +275,6 @@ export const WebrtcActionTypes = keyMirror({
     MUTED: null,
     IN_PROGRESS: null,
     DISABLED: null,
-    RHS: null,
 });
 
 export const ModalIdentifiers = {
@@ -266,6 +284,7 @@ export const ModalIdentifiers = {
     CHANNEL_INVITE: 'channel_invite',
     CREATE_DM_CHANNEL: 'create_dm_channel',
     EDIT_CHANNEL_HEADER: 'edit_channel_header',
+    DELETE_POST: 'delete_post',
 };
 
 export const UserStatuses = {
@@ -273,13 +292,6 @@ export const UserStatuses = {
     AWAY: 'away',
     ONLINE: 'online',
     DND: 'dnd',
-};
-
-export const UserStatusesWeight = {
-    online: 0,
-    away: 1,
-    offline: 2,
-    dnd: 3,
 };
 
 export const UserSearchOptions = {
@@ -296,6 +308,7 @@ export const SocketEvents = {
     CHANNEL_DELETED: 'channel_deleted',
     CHANNEL_UPDATED: 'channel_updated',
     CHANNEL_VIEWED: 'channel_viewed',
+    CHANNEL_MEMBER_UPDATED: 'channel_member_updated',
     DIRECT_ADDED: 'direct_added',
     NEW_USER: 'new_user',
     ADDED_TO_TEAM: 'added_to_team',
@@ -308,6 +321,9 @@ export const SocketEvents = {
     USER_UPDATED: 'user_updated',
     USER_ROLE_UPDATED: 'user_role_updated',
     MEMBERROLE_UPDATED: 'memberrole_updated',
+    ROLE_ADDED: 'role_added',
+    ROLE_REMOVED: 'role_removed',
+    ROLE_UPDATED: 'role_updated',
     TYPING: 'typing',
     PREFERENCE_CHANGED: 'preference_changed',
     PREFERENCES_CHANGED: 'preferences_changed',
@@ -424,7 +440,6 @@ export const ErrorBarTypes = {
     LICENSE_PAST_GRACE: 'error_bar.past_grace',
     PREVIEW_MODE: 'error_bar.preview_mode',
     SITE_URL: 'error_bar.site_url',
-    APIV3_ENABLED: 'error_bar.apiv3_enabled',
     WEBSOCKET_PORT_ERROR: 'channel_loader.socketError',
 };
 
@@ -476,7 +491,7 @@ export const GroupUnreadChannels = {
 };
 
 export const Constants = {
-    PluginSettings,
+    SettingsTypes,
     Preferences,
     SocketEvents,
     ActionTypes,
@@ -551,8 +566,6 @@ export const Constants = {
     MAX_FILENAME_LENGTH: 35,
     THUMBNAIL_WIDTH: 128,
     THUMBNAIL_HEIGHT: 100,
-    PROFILE_WIDTH: 128,
-    PROFILE_HEIGHT: 128,
     WEB_VIDEO_WIDTH: 640,
     WEB_VIDEO_HEIGHT: 480,
     MOBILE_VIDEO_WIDTH: 480,
@@ -630,6 +643,7 @@ export const Constants = {
             mentionBg: '#ffffff',
             mentionColor: '#145dbf',
             centerChannelBg: '#ffffff',
+            selfHighlightBg: '#ffffff',
             centerChannelColor: '#3d3c40',
             newMessageSeparator: '#ff8800',
             linkColor: '#2389d7',
@@ -657,6 +671,7 @@ export const Constants = {
             mentionBg: '#fbfbfb',
             mentionColor: '#2071f7',
             centerChannelBg: '#f2f4f8',
+            selfHighlightBg: '#f2f4f8',
             centerChannelColor: '#333333',
             newMessageSeparator: '#ff8800',
             linkColor: '#2f81b7',
@@ -684,6 +699,7 @@ export const Constants = {
             mentionBg: '#b74a4a',
             mentionColor: '#ffffff',
             centerChannelBg: '#2f3e4e',
+            selfHighlightBg: '#2f3e4e',
             centerChannelColor: '#dddddd',
             newMessageSeparator: '#5de5da',
             linkColor: '#a4ffeb',
@@ -711,6 +727,7 @@ export const Constants = {
             mentionBg: '#0177e7',
             mentionColor: '#ffffff',
             centerChannelBg: '#1f1f1f',
+            selfHighlightBg: '#1f1f1f',
             centerChannelColor: '#dddddd',
             newMessageSeparator: '#cc992d',
             linkColor: '#0d93ff',
@@ -793,6 +810,11 @@ export const Constants = {
             group: 'centerChannelElements',
             id: 'centerChannelBg',
             uiName: 'Center Channel BG',
+        },
+        {
+            group: 'centerChannelElements',
+            id: 'selfHighlightBg',
+            uiName: 'Self Highlight BG',
         },
         {
             group: 'centerChannelElements',
@@ -1093,9 +1115,10 @@ export const Constants = {
     ALLOW_EDIT_POST_ALWAYS: 'always',
     ALLOW_EDIT_POST_NEVER: 'never',
     ALLOW_EDIT_POST_TIME_LIMIT: 'time_limit',
-    DEFAULT_POST_EDIT_TIME_LIMIT: 300,
+    UNSET_POST_EDIT_TIME_LIMIT: -1,
     MENTION_CHANNELS: 'mention.channels',
     MENTION_MORE_CHANNELS: 'mention.morechannels',
+    MENTION_UNREAD_CHANNELS: 'mention.unread.channels',
     MENTION_MEMBERS: 'mention.members',
     MENTION_NONMEMBERS: 'mention.nonmembers',
     MENTION_SPECIAL: 'mention.special',

@@ -86,6 +86,7 @@ describe('rhs view actions', () => {
                 postsInChannel: {
                     [channelId]: [latestPostId],
                 },
+                postsInThread: {},
                 messagesHistory: {
                     index: {
                         [Posts.MESSAGE_TYPES.COMMENT]: 0,
@@ -400,8 +401,9 @@ describe('rhs view actions', () => {
             testStore.dispatch(PostActions.setEditingPost(
                 latestPostId,
                 0,
-                '#reply_textbox',
-                'Comment'
+                'reply_textbox',
+                'Comment',
+                true
             ));
 
             expect(store.getActions()).toEqual(testStore.getActions());

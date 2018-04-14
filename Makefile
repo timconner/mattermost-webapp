@@ -15,7 +15,8 @@ test: .yarninstall ## Runs tests
 
 .yarninstall: package.json
 	@echo Getting dependencies using yarn
-
+	
+	yarn cache clean --pattern "mattermost-redux"
 	yarn install --pure-lockfile
 	cd node_modules/mattermost-redux; npm run build
 
@@ -58,6 +59,8 @@ else
 		kill $$PROCID; \
 	done
 endif
+
+restart: | stop run ## Restarts the app
 
 clean: ## Clears cached; deletes node_modules and dist directories
 	@echo Cleaning Webapp

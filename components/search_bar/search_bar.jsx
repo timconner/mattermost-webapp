@@ -31,6 +31,7 @@ export default class SearchBar extends React.Component {
             showMentions: PropTypes.func,
             showFlaggedPosts: PropTypes.func,
             closeRightHandSide: PropTypes.func,
+            closeWebrtc: PropTypes.func,
         }),
     };
 
@@ -57,15 +58,7 @@ export default class SearchBar extends React.Component {
     }
 
     handleClose = () => {
-        if (Utils.isMobile()) {
-            setTimeout(() => {
-                document.querySelector('.app__body .sidebar--menu').classList.add('visible');
-                document.querySelector('#sidebar-webrtc').classList.remove('webrtc--show');
-                document.querySelector('#inner-wrap-webrtc').classList.remove('webrtc--show');
-                document.querySelector('#inner-wrap-webrtc').classList.remove('move--left');
-            });
-        }
-
+        this.props.actions.closeWebrtc();
         this.props.actions.closeRightHandSide();
     }
 
@@ -82,7 +75,11 @@ export default class SearchBar extends React.Component {
     }
 
     handleUserBlur = () => {
-        this.setState({focused: false});
+        // add time out so that the pinned and member buttons are clickable
+        // when focus is released from the search box.
+        setTimeout(() => {
+            this.setState({focused: false});
+        }, 100);
     }
 
     handleClear = () => {
