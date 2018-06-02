@@ -1,5 +1,5 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
+// See LICENSE.txt for license information.
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -726,6 +726,7 @@ class UserSettingsGeneralTab extends React.Component {
                                 type='text'
                                 onChange={this.updateFirstName}
                                 value={this.state.firstName}
+                                onFocus={Utils.moveCursorToEnd}
                             />
                         </div>
                     </div>
@@ -968,6 +969,7 @@ class UserSettingsGeneralTab extends React.Component {
                                 onChange={this.updateUsername}
                                 value={this.state.username}
                                 autoCapitalize='off'
+                                onFocus={Utils.moveCursorToEnd}
                             />
                         </div>
                     </div>
@@ -1058,6 +1060,7 @@ class UserSettingsGeneralTab extends React.Component {
                                 value={this.state.position}
                                 maxLength={Constants.MAX_POSITION_LENGTH}
                                 autoCapitalize='off'
+                                onFocus={Utils.moveCursorToEnd}
                             />
                         </div>
                     </div>
@@ -1126,7 +1129,7 @@ class UserSettingsGeneralTab extends React.Component {
             pictureSection = (
                 <SettingPicture
                     title={formatMessage(holders.profilePicture)}
-                    submit={this.submitPicture}
+                    onSubmit={this.submitPicture}
                     src={Utils.imageURLForUser(user)}
                     serverError={serverError}
                     clientError={clientError}

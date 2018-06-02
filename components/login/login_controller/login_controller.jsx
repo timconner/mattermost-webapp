@@ -1,5 +1,5 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
+// See LICENSE.txt for license information.
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -181,14 +181,12 @@ export default class LoginController extends React.Component {
             () => {
                 // check for query params brought over from signup_user_complete
                 const params = new URLSearchParams(this.props.location.search);
-                const hash = params.get('h') || '';
-                const data = params.get('d') || '';
+                const inviteToken = params.get('t') || '';
                 const inviteId = params.get('id') || '';
 
-                if (inviteId || hash) {
+                if (inviteId || inviteToken) {
                     addUserToTeamFromInvite(
-                        data,
-                        hash,
+                        inviteToken,
                         inviteId,
                         (team) => {
                             this.finishSignin(team);

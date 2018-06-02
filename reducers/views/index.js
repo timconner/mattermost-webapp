@@ -1,5 +1,5 @@
-// Copyright (c) 2017-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
 
 import {combineReducers} from 'redux';
 
@@ -11,6 +11,8 @@ import modals from './modals';
 import emoji from './emoji';
 import lhs from './lhs';
 import webrtc from './webrtc';
+import search from './search';
+import notice from './notice';
 
 export default combineReducers({
     admin,
@@ -21,4 +23,6 @@ export default combineReducers({
     emoji,
     lhs,
     webrtc,
+    search,
+    notice,
 });

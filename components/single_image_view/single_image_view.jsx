@@ -1,5 +1,5 @@
-// Copyright (c) 2017-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -57,12 +57,15 @@ export default class SingleImageView extends React.PureComponent {
     }
 
     componentWillReceiveProps(nextProps) {
-        window.removeEventListener('resize', this.handleResize);
         this.loadImage(nextProps.fileInfo);
 
         if (nextProps.isRhsOpen !== this.props.isRhsOpen) {
             this.handleResize();
         }
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.handleResize);
     }
 
     handleResize = () => {

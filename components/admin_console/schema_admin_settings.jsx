@@ -1,5 +1,5 @@
-// Copyright (c) 2017-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
 
 import React from 'react';
 import {FormattedHTMLMessage, FormattedMessage} from 'react-intl';
@@ -20,6 +20,7 @@ import RadioSetting from 'components/admin_console/radio_setting.jsx';
 import GeneratedSetting from 'components/admin_console/generated_setting.jsx';
 import UserAutocompleteSetting from 'components/admin_console/user_autocomplete_setting.jsx';
 import SettingsGroup from 'components/admin_console/settings_group.jsx';
+import JobsTable from 'components/admin_console/jobs';
 
 export default class SchemaAdminSettings extends AdminSettings {
     constructor(props) {
@@ -35,6 +36,7 @@ export default class SchemaAdminSettings extends AdminSettings {
             [SettingsTypes.TYPE_USERNAME]: this.buildUsernameSetting,
             [SettingsTypes.TYPE_BUTTON]: this.buildButtonSetting,
             [SettingsTypes.TYPE_LANGUAGE]: this.buildLanguageSetting,
+            [SettingsTypes.TYPE_JOBSTABLE]: this.buildJobsTableSetting,
             [SettingsTypes.TYPE_CUSTOM]: this.buildCustomSetting,
         };
     }
@@ -49,15 +51,13 @@ export default class SchemaAdminSettings extends AdminSettings {
         const schema = this.props.schema;
 
         if (schema) {
-            if (!config[schema.id]) {
-                config[schema.id] = {};
-            }
-
-            const configSettings = config[schema.id];
-
             const settings = schema.settings || [];
             settings.forEach((setting) => {
-                configSettings[setting.key] = this.getSettingValue(setting);
+                if (!setting.key) {
+                    return;
+                }
+
+                this.setConfigValue(config, setting.key, this.getSettingValue(setting));
             });
         }
 
@@ -68,11 +68,15 @@ export default class SchemaAdminSettings extends AdminSettings {
         const state = {};
 
         if (schema) {
-            const configSettings = config[schema.id] || {};
-
             const settings = schema.settings || [];
             settings.forEach((setting) => {
-                state[setting.key] = configSettings[setting.key] == null ? setting.default : configSettings[setting.key];
+                if (!setting.key) {
+                    return;
+                }
+
+                const value = this.getConfigValue(config, setting.key);
+
+                state[setting.key] = value == null ? setting.default : value;
             });
         }
 
@@ -199,27 +203,19 @@ export default class SchemaAdminSettings extends AdminSettings {
     }
 
     isDisabled = (setting) => {
-        if (setting.needs) {
-            for (const need of setting.needs) {
-                const actual = this.getSettingValue(this.getSetting(need[0]));
-                const expected = need[1];
+        if (!setting.isDisabled || typeof setting.isDisabled !== 'function') {
+            return false;
+        }
 
-                if (expected instanceof RegExp) {
-                    if (!expected.test(actual)) {
-                        return true;
-                    }
-                } else if (actual !== expected) {
-                    return true;
-                }
-            }
+        return setting.isDisabled(this.props.config, this.state, this.props.license);
+    }
+
+    isHidden = (setting) => {
+        if (!setting.isHidden || typeof setting.isHidden !== 'function') {
+            return false;
         }
-        if (setting.needs_license && !this.props.license.IsLicensed) {
-            return true;
-        }
-        if (setting.needs_no_license && this.props.license.IsLicensed) {
-            return true;
-        }
-        return false;
+
+        return setting.isHidden(this.props.config, this.state, this.props.license);
     }
 
     buildButtonSetting = (setting) => {
@@ -229,11 +225,15 @@ export default class SchemaAdminSettings extends AdminSettings {
                 requestAction={setting.action}
                 helpText={this.renderHelpText(setting)}
                 buttonText={<span>{this.renderLabel(setting)}</span>}
-                showSuccessMessage={false}
+                showSuccessMessage={Boolean(setting.success_message)}
                 includeDetailedError={true}
                 errorMessage={{
                     id: setting.error_message,
-                    defaultMessage: setting.error_message,
+                    defaultMessage: setting.error_message_default,
+                }}
+                successMessage={setting.success_message && {
+                    id: setting.success_message,
+                    defaultMessage: setting.success_message_default,
                 }}
             />
         );
@@ -254,6 +254,7 @@ export default class SchemaAdminSettings extends AdminSettings {
                 placeholder={Utils.localizeMessage(setting.placeholder, setting.placeholder_default)}
                 value={this.state[setting.key] || ''}
                 disabled={this.isDisabled(setting)}
+                setByEnv={this.isSetByEnv(setting.key)}
                 onChange={this.handleChange}
             />
         );
@@ -268,6 +269,7 @@ export default class SchemaAdminSettings extends AdminSettings {
                 helpText={this.renderHelpText(setting)}
                 value={(!this.isDisabled(setting) && this.state[setting.key]) || false}
                 disabled={this.isDisabled(setting)}
+                setByEnv={this.isSetByEnv(setting.key)}
                 onChange={this.handleChange}
             />
         );
@@ -286,6 +288,7 @@ export default class SchemaAdminSettings extends AdminSettings {
                 helpText={this.renderHelpText(setting)}
                 value={this.state[setting.key] || values[0].value}
                 disabled={this.isDisabled(setting)}
+                setByEnv={this.isSetByEnv(setting.key)}
                 onChange={this.handleChange}
             />
         );
@@ -319,6 +322,7 @@ export default class SchemaAdminSettings extends AdminSettings {
                     helpText={this.renderHelpText(setting)}
                     selected={(this.state[setting.key] && this.state[setting.key].split(',')) || []}
                     disabled={this.isDisabled(setting)}
+                    setByEnv={this.isSetByEnv(setting.key)}
                     onChange={(changedId, value) => this.handleChange(changedId, value.join(','))}
                     noResultText={noResultText}
                     notPresent={notPresent}
@@ -334,6 +338,7 @@ export default class SchemaAdminSettings extends AdminSettings {
                 helpText={this.renderHelpText(setting)}
                 value={this.state[setting.key] || values[0].value}
                 disabled={this.isDisabled(setting)}
+                setByEnv={this.isSetByEnv(setting.key)}
                 onChange={this.handleChange}
             />
         );
@@ -352,6 +357,7 @@ export default class SchemaAdminSettings extends AdminSettings {
                 helpText={this.renderHelpText(setting)}
                 value={this.state[setting.key] || values[0]}
                 disabled={this.isDisabled(setting)}
+                setByEnv={this.isSetByEnv(setting.key)}
                 onChange={this.handleChange}
             />
         );
@@ -384,6 +390,7 @@ export default class SchemaAdminSettings extends AdminSettings {
                 placeholder={Utils.localizeMessage(setting.placeholder, setting.placeholder_default)}
                 value={this.state[setting.key] || ''}
                 disabled={this.isDisabled(setting)}
+                setByEnv={this.isSetByEnv(setting.key)}
                 onChange={this.handleGeneratedChange}
             />
         );
@@ -408,6 +415,29 @@ export default class SchemaAdminSettings extends AdminSettings {
         );
     }
 
+    buildJobsTableSetting = (setting) => {
+        return (
+            <JobsTable
+                key={this.props.schema.id + '_userautocomplete_' + setting.key}
+                jobType={setting.job_type}
+                getExtraInfoText={setting.render_job}
+                disabled={this.isDisabled(setting)}
+                createJobButtonText={
+                    <FormattedMessage
+                        id={setting.label}
+                        defaultMessage={setting.label_default}
+                    />
+                }
+                createJobHelpText={
+                    <FormattedMessage
+                        id={setting.help_text}
+                        defaultMessage={setting.help_text_default}
+                    />
+                }
+            />
+        );
+    }
+
     buildCustomSetting = (setting) => {
         const CustomComponent = setting.component;
         return (
@@ -427,8 +457,13 @@ export default class SchemaAdminSettings extends AdminSettings {
         const settingsList = [];
         if (schema.settings) {
             schema.settings.forEach((setting) => {
-                if (this.buildSettingFunctions[setting.type]) {
-                    settingsList.push(this.buildSettingFunctions[setting.type](setting));
+                if (this.buildSettingFunctions[setting.type] && !this.isHidden(setting)) {
+                    // This is a hack required as plugin settings are case insensitive
+                    let s = setting;
+                    if (this.isPlugin) {
+                        s = {...setting, key: setting.key.toLowerCase()};
+                    }
+                    settingsList.push(this.buildSettingFunctions[setting.type](s));
                 }
             });
         }
@@ -465,7 +500,7 @@ export default class SchemaAdminSettings extends AdminSettings {
     render = () => {
         const schema = this.props.schema;
 
-        if (schema.component) {
+        if (schema && schema.component) {
             const CustomComponent = schema.component;
             return (<CustomComponent {...this.props}/>);
         }

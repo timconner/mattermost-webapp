@@ -1,5 +1,5 @@
-// Copyright (c) 2018-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
 
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
@@ -13,7 +13,6 @@ import PolicySettings from './policy_settings.jsx';
 function mapStateToProps(state) {
     return {
         roles: getRoles(state),
-        rolesRequest: state.requests.roles.getRolesByNames,
     };
 }
 

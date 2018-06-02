@@ -1,5 +1,5 @@
-// Copyright (c) 2016-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -86,14 +86,13 @@ export default class SignupLdap extends React.Component {
     }
 
     handleLdapSignupSuccess() {
-        const hash = (new URLSearchParams(this.props.location.search)).get('h');
-        const data = (new URLSearchParams(this.props.location.search)).get('d');
-        const inviteId = (new URLSearchParams(this.props.location.search)).get('id');
+        const params = new URLSearchParams(this.props.location.search);
+        const token = params.get('t') || '';
+        const inviteId = params.get('id') || '';
 
-        if (inviteId || hash) {
+        if (inviteId || token) {
             addUserToTeamFromInvite(
-                data,
-                hash,
+                token,
                 inviteId,
                 () => {
                     this.finishSignup();

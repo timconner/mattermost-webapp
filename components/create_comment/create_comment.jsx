@@ -1,5 +1,5 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
+// See LICENSE.txt for license information.
 
 import $ from 'jquery';
 import PropTypes from 'prop-types';
@@ -138,6 +138,11 @@ export default class CreateComment extends React.PureComponent {
          * Set if the emoji picker is enabled.
          */
         enableEmojiPicker: PropTypes.bool.isRequired,
+
+        /**
+         * The maximum length of a post
+         */
+        maxPostSize: PropTypes.number.isRequired,
     }
 
     constructor(props) {
@@ -369,7 +374,7 @@ export default class CreateComment extends React.PureComponent {
     }
 
     handleFileUploadChange = () => {
-        this.focusTextbox(true);
+        this.focusTextbox();
     }
 
     handleUploadStart = (clientIds) => {
@@ -644,6 +649,7 @@ export default class CreateComment extends React.PureComponent {
                                 id='reply_textbox'
                                 ref='textbox'
                                 disabled={readOnlyChannel}
+                                characterLimit={this.props.maxPostSize}
                             />
                             <span
                                 ref='createCommentControls'

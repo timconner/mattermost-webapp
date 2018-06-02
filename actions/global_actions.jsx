@@ -1,5 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
+// See LICENSE.txt for license information.
+
+import debounce from 'lodash/debounce';
 
 import {
     getChannel,
@@ -42,6 +44,7 @@ import {filterAndSortTeamsByDisplayName} from 'utils/team_utils.jsx';
 import * as Utils from 'utils/utils.jsx';
 import en from 'i18n/en.json';
 import * as I18n from 'i18n/i18n.jsx';
+import {equalServerVersions} from 'utils/server_version';
 
 const dispatch = store.dispatch;
 const getState = store.getState;
@@ -537,10 +540,17 @@ export async function redirectUserToDefaultTeam() {
     }
 }
 
-export function postListScrollChange(forceScrollToBottom = false) {
+export const postListScrollChange = debounce(() => {
     AppDispatcher.handleViewAction({
         type: EventTypes.POST_LIST_SCROLL_CHANGE,
-        value: forceScrollToBottom,
+        value: false,
+    });
+});
+
+export function postListScrollChangeToBottom() {
+    AppDispatcher.handleViewAction({
+        type: EventTypes.POST_LIST_SCROLL_CHANGE,
+        value: true,
     });
 }
 
@@ -556,8 +566,9 @@ let serverVersion = '';
 
 export function reloadIfServerVersionChanged() {
     const newServerVersion = Client4.getServerVersion();
-    if (serverVersion && serverVersion !== newServerVersion) {
-        console.log('Detected version update refreshing the page'); //eslint-disable-line no-console
+
+    if (serverVersion && !equalServerVersions(serverVersion, newServerVersion)) {
+        console.log(`Detected version update from ${serverVersion} to ${newServerVersion}; refreshing the page`); //eslint-disable-line no-console
         window.location.reload(true);
     }
 
